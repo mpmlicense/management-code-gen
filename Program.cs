@@ -143,7 +143,7 @@ public partial class Program
                 "uniqueidentifier" => "Guid",
                 _ => "string"
             };
-            if (nullable && csType != "string") csType += "?";
+            if (nullable) csType += "?";
 
             if (col.Equals(pkColumn))
             {
@@ -187,11 +187,7 @@ public partial class Program
         controller.AppendLine($"        // Apply search filter");
         controller.AppendLine($"        if (!string.IsNullOrEmpty(search) && !string.IsNullOrEmpty(searchColumn))");
         controller.AppendLine($"        {{");
-        controller.AppendLine($"            var property = typeof({modelClassName}).GetProperty(searchColumn, System.Reflection.BindingFlags.IgnoreCase | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);");
-        controller.AppendLine($"            if (property != null)");
-        controller.AppendLine($"            {{");
-        controller.AppendLine($"                query = query.Where(e => property.GetValue(e) != null && EF.Functions.Like(property.GetValue(e).ToString(), $\"%{{search}}%\"));");
-        controller.AppendLine($"            }}");
+        controller.AppendLine($"            query = query.Where($\"{{searchColumn}}.Contains(@0)\", search);");
         controller.AppendLine($"        }}");
         controller.AppendLine();
         controller.AppendLine($"        // Apply sorting");
